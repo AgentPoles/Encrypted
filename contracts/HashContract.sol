@@ -14,7 +14,7 @@ contract hasingDapp{
         address personAddress;
     }
 
-    struct message{
+    struct Message{
         uint id;
         string  text;
         bytes32 signature;
@@ -25,11 +25,13 @@ contract hasingDapp{
 
     string[] public persons;
 
-    message[] public messages;
+    // message[] public messages;
+    Message message;
 
     mapping(string=>address) persontoAddressMapping;
-    mapping(address=>bool)  doesAddressExist;
-    mapping(string=>bool) doesNameExist;
+    mapping(address=>string) addressToPersonMapping;
+    mapping(address=>bool) public  doesAddressExist;
+    mapping(string=>bool) public doesNameExist;
 
     
 
@@ -48,8 +50,9 @@ contract hasingDapp{
   
      bytes32 hashResult = getMessageHash(to,body);
      bytes32 signature = getEthSignedMessageHash(hashResult);
-        messages.push(message(messageCounter.current(),body,signature,msg.sender,to,false));
+        // messages.push(message(messageCounter.current(),body,signature,msg.sender,to,false));
          messageCounter.increment();
+        message = Message(messageCounter.current(),body,signature,msg.sender,to,false);
     }
 
       function getMessageHash(
@@ -137,9 +140,9 @@ contract hasingDapp{
         // implicitly return (r, s, v)
     }
 
-     function getTotalMessageCount() public view returns(uint){
-         return messageCounter.current();
-     }
+    //  function getTotalMessageCount() public view returns(uint){
+    //      return messageCounter.current();
+    //  }
 
      function getTotalPeopleCount() public view returns(uint){
          return peopleCounter.current();
@@ -152,7 +155,30 @@ contract hasingDapp{
      function getMessages() public view returns(message[] memory){
          return messages;
      }
+     function getMessage() public view returns(message memory){
+        return message;
+     }
 
+     function getName() public view returns(string memory){
+        require(doesAddressExist[msg.sender],'you are not registered');
+        return addressToPersonMapping[msg.sender];
+     }
+   
+     function getIfNameExists(string memory name) public view returns(bool){
+        return doesNameExist[name];
+     }
 
+     function getIfAddressExists(address daddress) public view returns(bool){
+        return doesAddressExist(daddress);
+     }
+
+     function getAddress(string name) public view returns(address){
+        require(doesNameExist[name],'name has not been registered');
+        return(persontoAddressMapping[name]);
+     }
+     funtion getUserName(address daddress) view returns(string memory){
+         require(doesAddressExist[msg.sender],'you are not registered');
+        return addressToPersonMapping[msg.sender];
+     }
 }
 
